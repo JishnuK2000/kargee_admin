@@ -5,8 +5,9 @@ import MonthlyTarget from "../../components/ecommerce/MonthlyTarget";
 import RecentOrders from "../../components/ecommerce/RecentOrders";
 import DemographicCard from "../../components/ecommerce/DemographicCard";
 import PageMeta from "../../components/common/PageMeta";
-
+import   useAuthGuard from "../../hooks/useAuthGuard"
 export default function Home() {
+    useAuthGuard();
   return (
     <>
       <PageMeta

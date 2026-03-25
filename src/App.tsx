@@ -18,49 +18,62 @@ import Blank from "./pages/Blank";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
+import ProtectedRoute from "./routes/ProtectedRoute";
+import { AuthProvider } from "./context/AuthContext";
+import ProductScreen from "./pages/Products/Products";
+import OrderScreen from "./pages/Orders/Orders";
 
+import AddEditProductScreen from "./pages/Products/AddEditProductScreen";
+import OrderDetail from "./pages/OrderDetail/OrderDeatail";
+import UsersScreen from "./pages/Users/users";
 export default function App() {
   return (
-    <>
+    <AuthProvider>
       <Router>
         <ScrollToTop />
         <Routes>
-          {/* Dashboard Layout */}
-          <Route element={<AppLayout />}>
+          {/* Protected Routes */}
+          <Route
+            element={
+              <ProtectedRoute>
+                <AppLayout />
+              </ProtectedRoute>
+            }
+          >
             <Route index path="/" element={<Home />} />
-
-            {/* Others Page */}
             <Route path="/profile" element={<UserProfiles />} />
+            <Route path="/products" element={<ProductScreen />} />
+            <Route path="/products/add" element={<AddEditProductScreen />} />
+            <Route
+              path="/products/edit/:id"
+              element={<AddEditProductScreen />}
+            />
+                   <Route path="/orders" element={<OrderScreen />} />
+                        <Route path="/orders/:id" element={<OrderDetail />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/blank" element={<Blank />} />
-
-            {/* Forms */}
             <Route path="/form-elements" element={<FormElements />} />
-
-            {/* Tables */}
             <Route path="/basic-tables" element={<BasicTables />} />
-
-            {/* Ui Elements */}
             <Route path="/alerts" element={<Alerts />} />
             <Route path="/avatars" element={<Avatars />} />
             <Route path="/badge" element={<Badges />} />
             <Route path="/buttons" element={<Buttons />} />
             <Route path="/images" element={<Images />} />
             <Route path="/videos" element={<Videos />} />
-
-            {/* Charts */}
             <Route path="/line-chart" element={<LineChart />} />
             <Route path="/bar-chart" element={<BarChart />} />
+            <Route path="/users" element={<UsersScreen />} />
+
           </Route>
 
-          {/* Auth Layout */}
+          {/* Public Pages */}
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
 
-          {/* Fallback Route */}
+          {/* Fallback */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
-    </>
+    </AuthProvider>
   );
 }
