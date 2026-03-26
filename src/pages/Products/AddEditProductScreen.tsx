@@ -1,18 +1,155 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
 import Input from "../../components/form/input/InputField";
-import { Select } from "../../components/ui/select/Select";
 import Button from "../../components/ui/button/Button";
 
-// ✅ Sizes
-const sizeOptions = [
-  { label: "XS", value: "XS" },
-  { label: "S", value: "S" },
-  { label: "M", value: "M" },
-  { label: "L", value: "L" },
-  { label: "XL", value: "XL" },
-  { label: "XXL", value: "XXL" },
-];
+const sizeOptions = ["XS", "S", "M", "L", "XL", "XXL"];
+
+// ✅ Custom dropdown with delete buttons
+function DeletableSelect({
+  options,
+  value,
+  onChange,
+  onDelete,
+  placeholder = "Select...",
+}: {
+  options: { label: string; value: string }[];
+  value: string;
+  onChange: (val: string) => void;
+  onDelete: (val: string) => void;
+  placeholder?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const selected = options.find((o) => o.value === value);
+
+  return (
+    <div ref={ref} style={{ position: "relative" }}>
+      <button
+        type="button"
+        onClick={() => setOpen((prev) => !prev)}
+        style={{
+          width: "100%",
+          padding: "8px 12px",
+          border: "1px solid #d1d5db",
+          borderRadius: "6px",
+          background: "white",
+          textAlign: "left",
+          cursor: "pointer",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          fontSize: "14px",
+          color: selected ? "#111827" : "#9ca3af",
+        }}
+      >
+        {selected ? selected.label : placeholder}
+        <span style={{ fontSize: "10px", color: "#6b7280" }}>▼</span>
+      </button>
+
+      {open && (
+        <div
+          style={{
+            position: "absolute",
+            top: "calc(100% + 4px)",
+            left: 0,
+            right: 0,
+            background: "white",
+            border: "1px solid #e5e7eb",
+            borderRadius: "6px",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+            zIndex: 50,
+            maxHeight: "200px",
+            overflowY: "auto",
+          }}
+        >
+          {options.length === 0 && (
+            <div
+              style={{ padding: "10px 12px", fontSize: "13px", color: "#9ca3af" }}
+            >
+              No options
+            </div>
+          )}
+          {options.map((opt) => (
+            <div
+              key={opt.value}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "8px 12px",
+                background: opt.value === value ? "#f3f4f6" : "transparent",
+                cursor: "pointer",
+                fontSize: "14px",
+              }}
+              onMouseEnter={(e) =>
+                ((e.currentTarget as HTMLDivElement).style.background =
+                  opt.value === value ? "#f3f4f6" : "#f9fafb")
+              }
+              onMouseLeave={(e) =>
+                ((e.currentTarget as HTMLDivElement).style.background =
+                  opt.value === value ? "#f3f4f6" : "transparent")
+              }
+            >
+              <span
+                style={{ flex: 1 }}
+                onClick={() => {
+                  onChange(opt.value);
+                  setOpen(false);
+                }}
+              >
+                {opt.label}
+              </span>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(opt.value);
+                }}
+                title={`Delete "${opt.label}"`}
+                style={{
+                  marginLeft: "8px",
+                  padding: "2px 6px",
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "#ef4444",
+                  fontSize: "13px",
+                  borderRadius: "4px",
+                  lineHeight: 1,
+                  display: "flex",
+                  alignItems: "center",
+                }}
+                onMouseEnter={(e) =>
+                  ((e.currentTarget as HTMLButtonElement).style.background =
+                    "#fee2e2")
+                }
+                onMouseLeave={(e) =>
+                  ((e.currentTarget as HTMLButtonElement).style.background =
+                    "transparent")
+                }
+              >
+                🗑
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function AddEditProductScreen() {
   const { id } = useParams();
@@ -21,10 +158,8 @@ export default function AddEditProductScreen() {
   const token = localStorage.getItem("token");
 
   const [loading, setLoading] = useState(false);
-
   const [categories, setCategories] = useState<any[]>([]);
   const [collections, setCollections] = useState<any[]>([]);
-
   const [newCategory, setNewCategory] = useState("");
   const [newCollection, setNewCollection] = useState("");
 
@@ -46,37 +181,31 @@ export default function AddEditProductScreen() {
     isNewArrival: false,
   });
 
+  const authHeaders = { Authorization: `Bearer ${token}` };
+
   // ✅ Fetch categories & collections
+  const fetchCategories = async () => {
+    const { data } = await axios.get(`${API}/categories`);
+    setCategories(data);
+  };
+
+  const fetchCollections = async () => {
+    const { data } = await axios.get(`${API}/collections`);
+    setCollections(data);
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const catRes = await fetch(`${API}/categories`);
-        const catData = await catRes.json();
-        console.log("CATEGORIES:", catData);
-        setCategories(catData);
-
-        const colRes = await fetch(`${API}/collections`);
-        const colData = await colRes.json();
-        console.log("COLLECTIONS:", colData);
-        setCollections(colData);
-      } catch (err) {
-        console.error("Error fetching:", err);
-      }
-    };
-
-    fetchData();
+    fetchCategories();
+    fetchCollections();
   }, []);
 
   // ✅ Fetch product (Edit mode)
   useEffect(() => {
     if (!id) return;
-
     setLoading(true);
-    fetch(`${API}/admin/products/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => res.json())
-      .then((data) => {
+    axios
+      .get(`${API}/admin/products/${id}`, { headers: authHeaders })
+      .then(({ data }) => {
         setForm({
           name: data.name,
           category: data.category,
@@ -98,96 +227,105 @@ export default function AddEditProductScreen() {
       .finally(() => setLoading(false));
   }, [id]);
 
+  // ✅ Add Category
+  const handleAddCategory = async () => {
+    if (!newCategory.trim()) return;
+    await axios.post(
+      `${API}/categories`,
+      { name: newCategory },
+      { headers: { ...authHeaders, "Content-Type": "application/json" } }
+    );
+    const addedName = newCategory;
+    setNewCategory("");
+    await fetchCategories();
+    setForm((prev) => ({ ...prev, category: addedName }));
+  };
+
+  // ✅ Delete Category
+  const handleDeleteCategory = async (name: string) => {
+    const cat = categories.find((c) => c.name === name);
+    if (!cat) return;
+    if (!window.confirm(`Delete category "${name}"?`)) return;
+    await axios.delete(`${API}/categories/${cat._id}`, {
+      headers: authHeaders,
+    });
+    await fetchCategories();
+    if (form.category === name) setForm((prev) => ({ ...prev, category: "" }));
+  };
+
+  // ✅ Add Collection
+  const handleAddCollection = async () => {
+    if (!newCollection.trim()) return;
+    await axios.post(
+      `${API}/collections`,
+      { name: newCollection },
+      { headers: { ...authHeaders, "Content-Type": "application/json" } }
+    );
+    const addedName = newCollection;
+    setNewCollection("");
+    await fetchCollections();
+    setForm((prev) => ({ ...prev, collectionName: addedName }));
+  };
+
+  // ✅ Delete Collection
+  const handleDeleteCollection = async (name: string) => {
+    const col = collections.find((c) => c.name === name);
+    if (!col) return;
+    if (!window.confirm(`Delete collection "${name}"?`)) return;
+    await axios.delete(`${API}/collections/${col._id}`, {
+      headers: authHeaders,
+    });
+    await fetchCollections();
+    if (form.collectionName === name)
+      setForm((prev) => ({ ...prev, collectionName: "" }));
+  };
+
   // ✅ Image upload
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     setForm((prev) => ({
       ...prev,
-      images: [...prev.images, ...Array.from(e.target.files)],
+      images: [...prev.images, ...Array.from(e.target.files!)],
     }));
-  };
-
-  // ✅ Add Category
-  const handleAddCategory = async () => {
-    if (!newCategory) return;
-
-    await fetch(`${API}/categories`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ name: newCategory }),
-    });
-
-    const addedName = newCategory;
-    setNewCategory("");
-
-    const res = await fetch(`${API}/categories`);
-    const data = await res.json();
-    setCategories(data);
-
-    // auto select
-    setForm((prev) => ({ ...prev, category: addedName }));
-  };
-
-  // ✅ Add Collection
-  const handleAddCollection = async () => {
-    if (!newCollection) return;
-
-    await fetch(`${API}/collections`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ name: newCollection }),
-    });
-
-    const addedName = newCollection;
-    setNewCollection("");
-
-    const res = await fetch(`${API}/collections`);
-    const data = await res.json();
-    setCollections(data);
-
-    // auto select
-    setForm((prev) => ({ ...prev, collectionName: addedName }));
   };
 
   // ✅ Save Product
   const handleSave = async () => {
     try {
       const formData = new FormData();
-
       Object.entries(form).forEach(([key, value]) => {
         if (key === "images") {
-          value.forEach((file: File) => formData.append("images", file));
+          (value as File[]).forEach((file) => formData.append("images", file));
         } else if (key === "imageUrls") {
-          value.forEach((url: string) =>
-            formData.append("existingImages[]", url),
+          (value as string[]).forEach((url) =>
+            formData.append("existingImages[]", url)
           );
         } else if (Array.isArray(value)) {
-          value.forEach((v) => formData.append(key + "[]", v));
+          (value as string[]).forEach((v) => formData.append(key + "[]", v));
         } else {
           formData.append(key, value as any);
         }
       });
 
-      const method = id ? "PUT" : "POST";
+      const method = id ? "put" : "post";
       const url = id ? `${API}/admin/products/${id}` : `${API}/admin/products`;
 
-      await fetch(url, {
-        method,
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      });
-
+      await axios[method](url, formData, { headers: authHeaders });
       navigate("/products");
     } catch (err) {
       console.error(err);
     }
   };
+
+  const categoryOptions = categories.map((c) => ({
+    label: c.name,
+    value: c.name,
+  }));
+
+  const collectionOptions = collections.map((c) => ({
+    label: c.name,
+    value: c.name,
+  }));
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -213,18 +351,16 @@ export default function AddEditProductScreen() {
           {/* Category */}
           <div>
             <label className="block text-sm font-medium mb-1">Category</label>
-            <Select
-              options={categories.map((c) => ({
-                label: c.name,
-                value: c.name,
-              }))}
+            <DeletableSelect
+              options={categoryOptions}
               value={form.category}
-              onChange={(val: string) => setForm({ ...form, category: val })}
+              onChange={(val) => setForm({ ...form, category: val })}
+              onDelete={handleDeleteCategory}
+              placeholder="Select category..."
             />
-
             <div className="flex gap-2 mt-2">
               <Input
-                placeholder="Add Category"
+                placeholder="Add new category"
                 value={newCategory}
                 onChange={(e) => setNewCategory(e.target.value)}
               />
@@ -235,20 +371,16 @@ export default function AddEditProductScreen() {
           {/* Collection */}
           <div>
             <label className="block text-sm font-medium mb-1">Collection</label>
-            <Select
-              options={collections.map((c) => ({
-                label: c.name,
-                value: c.name,
-              }))}
+            <DeletableSelect
+              options={collectionOptions}
               value={form.collectionName}
-              onChange={(val: string) =>
-                setForm({ ...form, collectionName: val })
-              }
+              onChange={(val) => setForm({ ...form, collectionName: val })}
+              onDelete={handleDeleteCollection}
+              placeholder="Select collection..."
             />
-
             <div className="flex gap-2 mt-2">
               <Input
-                placeholder="Add Collection"
+                placeholder="Add new collection"
                 value={newCollection}
                 onChange={(e) => setNewCollection(e.target.value)}
               />
@@ -305,12 +437,38 @@ export default function AddEditProductScreen() {
           {/* Sizes */}
           <div>
             <label className="block text-sm font-medium mb-1">Sizes</label>
-            <Select
-              options={sizeOptions}
-              value={form.sizes}
-              multiple
-              onChange={(vals: string[]) => setForm({ ...form, sizes: vals })}
+            <DeletableSelect
+              options={sizeOptions.map((s) => ({ label: s, value: s }))}
+              value=""
+              onChange={(val) => {
+                if (!form.sizes.includes(val)) {
+                  setForm({ ...form, sizes: [...form.sizes, val] });
+                }
+              }}
+              onDelete={() => {}} // sizes are static, no delete needed
+              placeholder="Pick a size to add..."
             />
+            <div className="flex gap-2 mt-2 flex-wrap">
+              {form.sizes.map((size) => (
+                <span
+                  key={size}
+                  className="px-3 py-1 bg-gray-200 rounded-full text-sm flex items-center gap-2"
+                >
+                  {size}
+                  <button
+                    onClick={() =>
+                      setForm({
+                        ...form,
+                        sizes: form.sizes.filter((s) => s !== size),
+                      })
+                    }
+                    className="text-red-500 text-xs"
+                  >
+                    ✕
+                  </button>
+                </span>
+              ))}
+            </div>
           </div>
 
           {/* Colors */}
@@ -330,11 +488,8 @@ export default function AddEditProductScreen() {
           </div>
 
           {/* Images */}
-          {/* Images */}
           <div>
             <label className="block text-sm font-medium mb-2">Images</label>
-
-            {/* Upload Box */}
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-gray-400 transition">
               <input
                 type="file"
@@ -349,10 +504,7 @@ export default function AddEditProductScreen() {
                 <p className="text-xs text-gray-400">(Multiple allowed)</p>
               </label>
             </div>
-
-            {/* Preview Section */}
             <div className="flex flex-wrap gap-3 mt-4">
-              {/* Existing Images (Edit mode) */}
               {form.imageUrls.map((url) => (
                 <div key={url} className="relative w-24 h-24">
                   <img
@@ -373,8 +525,6 @@ export default function AddEditProductScreen() {
                   </button>
                 </div>
               ))}
-
-              {/* New Uploaded Images */}
               {form.images.map((file) => (
                 <div key={file.name} className="relative w-24 h-24">
                   <img
@@ -407,10 +557,9 @@ export default function AddEditProductScreen() {
                 onChange={(e) =>
                   setForm({ ...form, isFeatured: e.target.checked })
                 }
-              />
+              />{" "}
               Featured
             </label>
-
             <label>
               <input
                 type="checkbox"
@@ -418,7 +567,7 @@ export default function AddEditProductScreen() {
                 onChange={(e) =>
                   setForm({ ...form, isNewArrival: e.target.checked })
                 }
-              />
+              />{" "}
               New Arrival
             </label>
           </div>
