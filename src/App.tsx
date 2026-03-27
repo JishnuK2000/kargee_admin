@@ -26,6 +26,7 @@ import OrderScreen from "./pages/Orders/Orders";
 import AddEditProductScreen from "./pages/Products/AddEditProductScreen";
 import OrderDetail from "./pages/OrderDetail/OrderDeatail";
 import UsersScreen from "./pages/Users/users";
+import SupportTickets from "./pages/SupportTickets/SupportTickets";
 export default function App() {
   return (
     <AuthProvider>
@@ -48,8 +49,12 @@ export default function App() {
               path="/products/edit/:id"
               element={<AddEditProductScreen />}
             />
-                   <Route path="/orders" element={<OrderScreen />} />
-                        <Route path="/orders/:id" element={<OrderDetail />} />
+            <Route path="/orders" element={<OrderScreen />} />
+            <Route path="/orders/:id" element={<OrderDetail />} />
+            
+            <Route path="/complaints" element={<SupportTickets type="COMPLAINT" />} />
+            <Route path="/return-requests" element={<SupportTickets type="RETURN_REQUEST" />} />
+
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/blank" element={<Blank />} />
             <Route path="/form-elements" element={<FormElements />} />

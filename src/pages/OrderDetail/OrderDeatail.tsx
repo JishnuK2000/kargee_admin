@@ -109,6 +109,15 @@ export default function OrderDetail() {
               <b>Address:</b> {order.address.address}, {order.address.city},{" "}
               {order.address.state} - {order.address.pincode}
             </p>
+            <p>
+              <b>City:</b> {order.address.city}
+            </p>{" "}
+              <p>
+              <b>State:</b> {order.address.state}
+            </p>{" "}
+            <p>
+              <b>Pincode:</b> {order.address.pincode}
+            </p>
           </div>
         </div>
 

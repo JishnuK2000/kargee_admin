@@ -9,10 +9,7 @@ import {
   GridIcon,
   HorizontaLDots,
   ListIcon,
-  PageIcon,
   PieChartIcon,
-  PlugInIcon,
-  TableIcon,
   UserCircleIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
@@ -56,6 +53,16 @@ const navItems: NavItem[] = [
     icon: <CalenderIcon />,
     name: "Orders",
     path: "/orders",
+  },
+  {
+    icon: <ListIcon />,
+    name: "Complaints",
+    path: "/complaints",
+  },
+  {
+    icon: <ListIcon />,
+    name: "Returns",
+    path: "/return-requests",
   },
   // {
   //   name: "Forms",
