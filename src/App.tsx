@@ -27,6 +27,7 @@ import AddEditProductScreen from "./pages/Products/AddEditProductScreen";
 import OrderDetail from "./pages/OrderDetail/OrderDeatail";
 import UsersScreen from "./pages/Users/users";
 import SupportTickets from "./pages/SupportTickets/SupportTickets";
+import HomeSettings from "./pages/HomeSettings";
 export default function App() {
   return (
     <AuthProvider>
@@ -68,6 +69,7 @@ export default function App() {
             <Route path="/line-chart" element={<LineChart />} />
             <Route path="/bar-chart" element={<BarChart />} />
             <Route path="/users" element={<UsersScreen />} />
+            <Route path="/home-settings" element={<HomeSettings />} />
 
           </Route>
 

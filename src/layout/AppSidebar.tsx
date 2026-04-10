@@ -64,6 +64,11 @@ const navItems: NavItem[] = [
     name: "Returns",
     path: "/return-requests",
   },
+  {
+    icon: <GridIcon />,
+    name: "Home Settings",
+    path: "/home-settings",
+  },
   // {
   //   name: "Forms",
   //   icon: <ListIcon />,
