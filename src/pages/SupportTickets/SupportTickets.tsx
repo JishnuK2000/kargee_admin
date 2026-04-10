@@ -9,11 +9,9 @@ import {
 import Badge from "../../components/ui/badge/Badge";
 import Button from "../../components/ui/button/Button";
 import { useNavigate } from "react-router";
+import api from "../../api/api";
 
 export default function SupportTickets({ type }: { type: 'COMPLAINT' | 'RETURN_REQUEST' }) {
-  const API = import.meta.env.VITE_API_URL;
-  const token = localStorage.getItem("token");
-
   const [tickets, setTickets] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
@@ -27,11 +25,9 @@ export default function SupportTickets({ type }: { type: 'COMPLAINT' | 'RETURN_R
   const fetchTickets = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API}/admin/support`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.get("/admin/support");
       // Handle the case where the API might return an object like { tickets: [...] }
-      const data = await res.json();
+      const data = res.data;
       const ticketsArray = Array.isArray(data) ? data : data.tickets || [];
       // Filter strictly by the prop `type`
       const filtered = ticketsArray.filter((t: any) => t.ticketType === type);
@@ -98,18 +94,10 @@ export default function SupportTickets({ type }: { type: 'COMPLAINT' | 'RETURN_R
   const handleStatusUpdate = async (id: string, newStatus: string) => {
     try {
       // Trying /status as it is a common convention or just /admin/tickets/:id based on User Controller API
-      const res = await fetch(`${API}/admin/support/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ status: newStatus })
-      });
-      if (res.ok) {
-        // Optimistically update
-        setTickets(tickets.map((t: any) => t._id === id ? { ...t, status: newStatus } : t));
-      }
+      const res = await api.put(`/admin/support/${id}`, { status: newStatus });
+      
+      // Optimistically update
+      setTickets(tickets.map((t: any) => t._id === id ? { ...t, status: newStatus } : t));
     } catch (err) {
       console.error("Failed to update status", err);
     }

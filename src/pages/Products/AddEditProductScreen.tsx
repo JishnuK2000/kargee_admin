@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import axios from "axios";
+import api from "../../api/api";
 import Input from "../../components/form/input/InputField";
 import Button from "../../components/ui/button/Button";
 
@@ -95,12 +95,12 @@ function DeletableSelect({
                 fontSize: "14px",
               }}
               onMouseEnter={(e) =>
-                ((e.currentTarget as HTMLDivElement).style.background =
-                  opt.value === value ? "#f3f4f6" : "#f9fafb")
+              ((e.currentTarget as HTMLDivElement).style.background =
+                opt.value === value ? "#f3f4f6" : "#f9fafb")
               }
               onMouseLeave={(e) =>
-                ((e.currentTarget as HTMLDivElement).style.background =
-                  opt.value === value ? "#f3f4f6" : "transparent")
+              ((e.currentTarget as HTMLDivElement).style.background =
+                opt.value === value ? "#f3f4f6" : "transparent")
               }
             >
               <span
@@ -133,12 +133,12 @@ function DeletableSelect({
                   alignItems: "center",
                 }}
                 onMouseEnter={(e) =>
-                  ((e.currentTarget as HTMLButtonElement).style.background =
-                    "#fee2e2")
+                ((e.currentTarget as HTMLButtonElement).style.background =
+                  "#fee2e2")
                 }
                 onMouseLeave={(e) =>
-                  ((e.currentTarget as HTMLButtonElement).style.background =
-                    "transparent")
+                ((e.currentTarget as HTMLButtonElement).style.background =
+                  "transparent")
                 }
               >
                 🗑
@@ -154,8 +154,6 @@ function DeletableSelect({
 export default function AddEditProductScreen() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const API = import.meta.env.VITE_API_URL;
-  const token = localStorage.getItem("token");
 
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
@@ -179,18 +177,18 @@ export default function AddEditProductScreen() {
     status: "Pending",
     isFeatured: false,
     isNewArrival: false,
+    isBestSeller: false,
+    isTrending: false
   });
-
-  const authHeaders = { Authorization: `Bearer ${token}` };
 
   // ✅ Fetch categories & collections
   const fetchCategories = async () => {
-    const { data } = await axios.get(`${API}/categories`);
+    const { data } = await api.get("/categories");
     setCategories(data);
   };
 
   const fetchCollections = async () => {
-    const { data } = await axios.get(`${API}/collections`);
+    const { data } = await api.get("/collections");
     setCollections(data);
   };
 
@@ -203,8 +201,8 @@ export default function AddEditProductScreen() {
   useEffect(() => {
     if (!id) return;
     setLoading(true);
-    axios
-      .get(`${API}/admin/products/${id}`, { headers: authHeaders })
+    api
+      .get(`/admin/products/${id}`)
       .then(({ data }) => {
         setForm({
           name: data.name,
@@ -222,6 +220,8 @@ export default function AddEditProductScreen() {
           status: data.status || "Pending",
           isFeatured: data.isFeatured || false,
           isNewArrival: data.isNewArrival || false,
+          isBestSeller: data.isBestSeller || false,
+          isTrending: data.isTrending || false
         });
       })
       .finally(() => setLoading(false));
@@ -230,11 +230,7 @@ export default function AddEditProductScreen() {
   // ✅ Add Category
   const handleAddCategory = async () => {
     if (!newCategory.trim()) return;
-    await axios.post(
-      `${API}/categories`,
-      { name: newCategory },
-      { headers: { ...authHeaders, "Content-Type": "application/json" } }
-    );
+    await api.post("/categories", { name: newCategory });
     const addedName = newCategory;
     setNewCategory("");
     await fetchCategories();
@@ -246,9 +242,7 @@ export default function AddEditProductScreen() {
     const cat = categories.find((c) => c.name === name);
     if (!cat) return;
     if (!window.confirm(`Delete category "${name}"?`)) return;
-    await axios.delete(`${API}/categories/${cat._id}`, {
-      headers: authHeaders,
-    });
+    await api.delete(`/categories/${cat._id}`);
     await fetchCategories();
     if (form.category === name) setForm((prev) => ({ ...prev, category: "" }));
   };
@@ -256,11 +250,7 @@ export default function AddEditProductScreen() {
   // ✅ Add Collection
   const handleAddCollection = async () => {
     if (!newCollection.trim()) return;
-    await axios.post(
-      `${API}/collections`,
-      { name: newCollection },
-      { headers: { ...authHeaders, "Content-Type": "application/json" } }
-    );
+    await api.post("/collections", { name: newCollection });
     const addedName = newCollection;
     setNewCollection("");
     await fetchCollections();
@@ -272,9 +262,7 @@ export default function AddEditProductScreen() {
     const col = collections.find((c) => c.name === name);
     if (!col) return;
     if (!window.confirm(`Delete collection "${name}"?`)) return;
-    await axios.delete(`${API}/collections/${col._id}`, {
-      headers: authHeaders,
-    });
+    await api.delete(`/collections/${col._id}`);
     await fetchCollections();
     if (form.collectionName === name)
       setForm((prev) => ({ ...prev, collectionName: "" }));
@@ -308,9 +296,9 @@ export default function AddEditProductScreen() {
       });
 
       const method = id ? "put" : "post";
-      const url = id ? `${API}/admin/products/${id}` : `${API}/admin/products`;
+      const url = id ? `/admin/products/${id}` : "/admin/products";
 
-      await axios[method](url, formData, { headers: authHeaders });
+      await api[method](url, formData);
       navigate("/products");
     } catch (err) {
       console.error(err);
@@ -445,7 +433,7 @@ export default function AddEditProductScreen() {
                   setForm({ ...form, sizes: [...form.sizes, val] });
                 }
               }}
-              onDelete={() => {}} // sizes are static, no delete needed
+              onDelete={() => { }} // sizes are static, no delete needed
               placeholder="Pick a size to add..."
             />
             <div className="flex gap-2 mt-2 flex-wrap">
@@ -569,6 +557,25 @@ export default function AddEditProductScreen() {
                 }
               />{" "}
               New Arrival
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={form.isBestSeller}
+                onChange={(e) =>
+                  setForm({ ...form, isBestSeller: e.target.checked })
+                }
+              />{" "}
+              BestSeller
+            </label> <label>
+              <input
+                type="checkbox"
+                checked={form.isTrending}
+                onChange={(e) =>
+                  setForm({ ...form, isTrending: e.target.checked })
+                }
+              />{" "}
+              Trending
             </label>
           </div>
 

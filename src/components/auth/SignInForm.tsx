@@ -36,7 +36,11 @@ export default function SignInForm() {
       if (!res.ok) throw new Error(data.message || "Login failed");
 
       // ✅ Save using AuthContext
-      login(data); // <-- THIS is the fix!
+      login({
+        accessToken: data.accessToken,
+        refreshToken: data.refreshToken,
+        admin: data.admin
+      });
 
       // ✅ Redirect to home
       navigate("/", { replace: true });

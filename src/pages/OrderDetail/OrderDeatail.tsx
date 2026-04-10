@@ -1,12 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
-
-const API = import.meta.env.VITE_API_URL;
+import api from "../../api/api";
 
 export default function OrderDetail() {
   const { id } = useParams();
-  const token = localStorage.getItem("token");
 
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -17,9 +14,7 @@ export default function OrderDetail() {
   const fetchOrder = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API}/admin/orders/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.get(`/admin/orders/${id}`);
       setOrder(res.data);
       setStatus(res.data.status);
     } catch (err) {
@@ -37,13 +32,7 @@ export default function OrderDetail() {
   const handleStatusUpdate = async () => {
     try {
       setUpdating(true);
-      await axios.put(
-        `${API}/admin/orders/${id}`,
-        { status },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
+      await api.put(`/admin/orders/${id}`, { status });
       fetchOrder();
     } catch (err) {
       console.error(err);

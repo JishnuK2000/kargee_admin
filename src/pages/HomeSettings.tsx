@@ -1,13 +1,10 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../api/api";
 import PageMeta from "../components/common/PageMeta";
 import Button from "../components/ui/button/Button";
 import Input from "../components/form/input/InputField";
 
 export default function HomeSettings() {
-  const API = import.meta.env.VITE_API_URL;
-  const token = localStorage.getItem("token");
-  const authHeaders = { Authorization: `Bearer ${token}` };
 
   const [carousels, setCarousels] = useState<any[]>([]);
   const [homeGrids, setHomeGrids] = useState<any[]>([]);
@@ -23,9 +20,9 @@ export default function HomeSettings() {
     setLoading(true);
     try {
       const [carouselRes, gridRes, catRes] = await Promise.all([
-        axios.get(`${API}/home/carousel`),
-        axios.get(`${API}/home/4grid`),
-        axios.get(`${API}/categories`),
+        api.get("/home/carousel"),
+        api.get("/home/4grid"),
+        api.get("/categories"),
       ]);
       setCarousels(carouselRes.data);
       setHomeGrids(gridRes.data);
@@ -47,8 +44,8 @@ export default function HomeSettings() {
     formData.append("desktopImage", desktopFile);
     formData.append("mobileImage", mobileFile);
     try {
-      await axios.post(`${API}/admin/home/carousel`, formData, {
-        headers: { ...authHeaders, "Content-Type": "multipart/form-data" },
+      await api.post("/admin/home/carousel", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
       setDesktopFile(null);
       setMobileFile(null);
@@ -61,7 +58,7 @@ export default function HomeSettings() {
   const handleDeleteCarousel = async (id: string) => {
     if (!window.confirm("Delete this carousel image?")) return;
     try {
-      await axios.delete(`${API}/admin/home/carousel/${id}`, { headers: authHeaders });
+      await api.delete(`/admin/home/carousel/${id}`);
       fetchData();
     } catch (err) {
       console.error("Error deleting carousel:", err);
@@ -78,8 +75,8 @@ export default function HomeSettings() {
     formData.append("category", gridCategory);
     formData.append("title", gridTitle);
     try {
-      await axios.post(`${API}/admin/home/4grid`, formData, {
-        headers: { ...authHeaders, "Content-Type": "multipart/form-data" },
+      await api.post("/admin/home/4grid", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
       setGridFile(null);
       setGridCategory("");
@@ -93,7 +90,7 @@ export default function HomeSettings() {
   const handleDeleteGrid = async (id: string) => {
     if (!window.confirm("Delete this grid item?")) return;
     try {
-      await axios.delete(`${API}/admin/home/4grid/${id}`, { headers: authHeaders });
+      await api.delete(`/admin/home/4grid/${id}`);
       fetchData();
     } catch (err) {
       console.error("Error deleting grid:", err);

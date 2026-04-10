@@ -7,7 +7,7 @@ interface Admin {
 
 interface AuthContextType {
   admin: Admin | null;
-  login: (data: { token: string; admin: Admin }) => void;
+  login: (data: { accessToken: string; refreshToken: string; admin: Admin }) => void;
   logout: () => void;
   loading: boolean; // ✅ new
 }
@@ -31,14 +31,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(false); // ✅ mark as done
   }, []);
 
-  const login = (data: { token: string; admin: Admin }) => {
-    localStorage.setItem("token", data.token);
+  const login = (data: { accessToken: string; refreshToken: string; admin: Admin }) => {
+    localStorage.setItem("token", data.accessToken);
+    localStorage.setItem("refreshToken", data.refreshToken);
     localStorage.setItem("admin", JSON.stringify(data.admin));
     setAdmin(data.admin);
   };
 
   const logout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("refreshToken");
     localStorage.removeItem("admin");
     setAdmin(null);
   };

@@ -3,6 +3,7 @@ import { Table, TableBody, TableCell, TableHeader, TableRow } from "../../compon
 import Badge from "../../components/ui/badge/Badge";
 import Button from "../../components/ui/button/Button";
 import { useNavigate } from "react-router-dom";
+import api from "../../api/api";
 
 interface Product {
   _id: string;
@@ -15,8 +16,6 @@ interface Product {
 }
 
 export default function ProductScreen() {
-  const API = import.meta.env.VITE_API_URL;
-  const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
   const [products, setProducts] = useState<Product[]>([]);
@@ -25,11 +24,8 @@ export default function ProductScreen() {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API}/admin/products`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      setProducts(data);
+      const res = await api.get("/admin/products");
+      setProducts(res.data);
     } catch (err) {
       console.error("Error fetching products:", err);
     } finally {
@@ -44,10 +40,7 @@ export default function ProductScreen() {
   const handleDelete = async (_id: string) => {
     if (!confirm("Are you sure you want to delete this product?")) return;
     try {
-      await fetch(`${API}/admin/products/${_id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.delete(`/admin/products/${_id}`);
       setProducts((prev) => prev.filter((p) => p._id !== _id));
     } catch (err) {
       console.error("Failed to delete product:", err);

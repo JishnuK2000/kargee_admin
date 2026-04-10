@@ -9,11 +9,9 @@ import {
 import Badge from "../../components/ui/badge/Badge";
 import Button from "../../components/ui/button/Button";
 import { useNavigate } from "react-router";
+import api from "../../api/api";
 
 export default function OrderScreen() {
-  const API = import.meta.env.VITE_API_URL;
-  const token = localStorage.getItem("token");
-
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
@@ -25,11 +23,8 @@ export default function OrderScreen() {
   const fetchOrders = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API}/admin/orders`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      setOrders(data);
+      const res = await api.get("/admin/orders");
+      setOrders(res.data);
     } catch (err) {
       console.error("Error fetching orders:", err);
     } finally {

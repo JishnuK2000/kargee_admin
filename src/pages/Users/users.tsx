@@ -7,6 +7,7 @@ import {
   TableRow,
 } from "../../components/ui/table";
 import Button from "../../components/ui/button/Button";
+import api from "../../api/api";
 
 interface User {
   _id: string;
@@ -16,9 +17,6 @@ interface User {
 }
 
 export default function UsersScreen() {
-  const API = import.meta.env.VITE_API_URL;
-  const token = localStorage.getItem("token");
-
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
@@ -28,11 +26,8 @@ export default function UsersScreen() {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API}/admin/users/get-users`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      setUsers(data);
+      const res = await api.get("/admin/users/get-users");
+      setUsers(res.data);
     } catch (err) {
       console.error("Error fetching users:", err);
     } finally {
