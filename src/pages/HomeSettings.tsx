@@ -109,49 +109,55 @@ export default function HomeSettings() {
         {/* Carousel Section */}
         <section className="bg-white dark:bg-gray-900 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-800">
           <h2 className="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-200">Carousel Banner Images</h2>
-          
-          <div className="flex flex-col md:flex-row gap-6 mb-8 items-end bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-100 dark:border-gray-800">
-              <div className="flex-1 space-y-4 w-full">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Desktop version (Large)</label>
-                    <div className="flex items-center gap-3">
-                      <input 
-                        type="file" 
-                        accept="image/*"
-                        onChange={(e) => setDesktopFile(e.target.files?.[0] || null)}
-                        className="flex-1 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer"
-                      />
-                      {desktopFile && (
-                        <div className="w-12 h-8 border rounded overflow-hidden bg-gray-100 flex-shrink-0 shadow-sm">
-                          <img src={URL.createObjectURL(desktopFile)} alt="preview" className="w-full h-full object-cover" />
-                        </div>
-                      )}
-                    </div>
-                  </div>
 
-                  <div className="space-y-1">
-                    <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Mobile version (Portrait/Square)</label>
-                    <div className="flex items-center gap-3">
-                      <input 
-                        type="file" 
-                        accept="image/*"
-                        onChange={(e) => setMobileFile(e.target.files?.[0] || null)}
-                        className="flex-1 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer"
-                      />
-                      {mobileFile && (
-                        <div className="w-10 h-10 border rounded overflow-hidden bg-gray-100 flex-shrink-0 shadow-sm">
-                          <img src={URL.createObjectURL(mobileFile)} alt="preview" className="w-full h-full object-cover" />
-                        </div>
-                      )}
-                    </div>
+          <div className="flex flex-col md:flex-row gap-6 mb-8 items-end bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-100 dark:border-gray-800">
+            <div className="flex-1 space-y-4 w-full">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Desktop version (Large)</label>
+                  <p className="mt-2 mb-2 text-amber-500 text-sm">
+                    ℹ️ Recommended image size: 604 × 1440 px for best fit
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => setDesktopFile(e.target.files?.[0] || null)}
+                      className="flex-1 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer"
+                    />
+                    {desktopFile && (
+                      <div className="w-12 h-8 border rounded overflow-hidden bg-gray-100 flex-shrink-0 shadow-sm">
+                        <img src={URL.createObjectURL(desktopFile)} alt="preview" className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Mobile version (Portrait/Square)</label>
+                  <p className="mt-2 mb-2 text-amber-500 text-sm">
+                    ℹ️ Recommended image size: 282 × 432 px for best fit
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => setMobileFile(e.target.files?.[0] || null)}
+                      className="flex-1 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer"
+                    />
+                    {mobileFile && (
+                      <div className="w-10 h-10 border rounded overflow-hidden bg-gray-100 flex-shrink-0 shadow-sm">
+                        <img src={URL.createObjectURL(mobileFile)} alt="preview" className="w-full h-full object-cover" />
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
-            <Button 
-               onClick={handleAddCarousel} 
-               disabled={!desktopFile || !mobileFile}
-               className="h-10 px-6"
+            </div>
+            <Button
+              onClick={handleAddCarousel}
+              disabled={!desktopFile || !mobileFile}
+              className="h-10 px-6"
             >
               Add Carousel
             </Button>
@@ -161,16 +167,16 @@ export default function HomeSettings() {
             {carousels.map((item) => (
               <div key={item._id} className="relative group rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 flex flex-col shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex gap-1 h-32 p-1">
-                   <div className="flex-[2] overflow-hidden rounded-lg bg-gray-200 dark:bg-gray-700">
-                      <img src={item.desktopImageUrl} alt="desktop" className="w-full h-full object-cover" title="Desktop Image" />
-                   </div>
-                   <div className="flex-1 overflow-hidden rounded-lg bg-gray-200 dark:bg-gray-700">
-                      <img src={item.mobileImageUrl} alt="mobile" className="w-full h-full object-cover" title="Mobile Image" />
-                   </div>
+                  <div className="flex-[2] overflow-hidden rounded-lg bg-gray-200 dark:bg-gray-700">
+                    <img src={item.desktopImageUrl} alt="desktop" className="w-full h-full object-cover" title="Desktop Image" />
+                  </div>
+                  <div className="flex-1 overflow-hidden rounded-lg bg-gray-200 dark:bg-gray-700">
+                    <img src={item.mobileImageUrl} alt="mobile" className="w-full h-full object-cover" title="Mobile Image" />
+                  </div>
                 </div>
                 <div className="px-3 py-2 flex justify-between items-center bg-white dark:bg-gray-900">
-                   <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Carousel slide</span>
-                   <button 
+                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Carousel slide</span>
+                  <button
                     onClick={() => handleDeleteCarousel(item._id)}
                     className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition"
                     title="Delete"
@@ -190,19 +196,22 @@ export default function HomeSettings() {
         {/* 4-Grid Section */}
         <section className="bg-white dark:bg-gray-900 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-800">
           <h2 className="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-200">Home Page Category Grid (Max 4)</h2>
-          
+          <p className="mt-2 mb-4 text-amber-500 text-sm">
+            ℹ️ Recommended image size: 1023 × 1280 px for best fit
+          </p>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 items-end">
             <div>
               <label className="block text-sm font-medium mb-1">Display Title</label>
-              <Input 
-                placeholder="e.g. Best Sellers" 
+              <Input
+                placeholder="e.g. Best Sellers"
                 value={gridTitle}
                 onChange={(e) => setGridTitle(e.target.value)}
               />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Select Category</label>
-              <select 
+              <select
                 className="w-full h-11 px-4 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={gridCategory}
                 onChange={(e) => setGridCategory(e.target.value)}
@@ -218,8 +227,8 @@ export default function HomeSettings() {
             <div>
               <label className="block text-sm font-medium mb-1">Upload Grid Image</label>
               <div className="flex items-center gap-4 text-center justify-center">
-                <input 
-                  type="file" 
+                <input
+                  type="file"
                   accept="image/*"
                   onChange={(e) => setGridFile(e.target.files?.[0] || null)}
                   className="flex-1 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
@@ -231,22 +240,22 @@ export default function HomeSettings() {
                 )}
               </div>
             </div>
-              <Button onClick={handleAddGrid} disabled={!gridFile || !gridCategory || !gridTitle || homeGrids.length >= 4}>
-                Add to Grid
-              </Button>
+            <Button onClick={handleAddGrid} disabled={!gridFile || !gridCategory || !gridTitle || homeGrids.length >= 4}>
+              Add to Grid
+            </Button>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {homeGrids.map((item) => (
               <div key={item._id} className="relative group border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-800">
                 <div className="aspect-square">
-                   <img src={item.imageUrl} alt={item.category} className="w-full h-full object-cover" />
+                  <img src={item.imageUrl} alt={item.category} className="w-full h-full object-cover" />
                 </div>
                 <div className="p-3 text-center bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
                   <span className="font-semibold text-gray-900 dark:text-white block">{item.title}</span>
                   <span className="text-sm text-gray-500 dark:text-gray-400 capitalize">{item.category}</span>
                 </div>
-                <button 
+                <button
                   onClick={() => handleDeleteGrid(item._id)}
                   className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition shadow-lg"
                   title="Delete"

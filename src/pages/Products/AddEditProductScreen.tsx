@@ -478,6 +478,9 @@ export default function AddEditProductScreen() {
           {/* Images */}
           <div>
             <label className="block text-sm font-medium mb-2">Images</label>
+            <p className="mt-2 mb-4 text-amber-500 text-sm">
+              ℹ️ Recommended image size: 352 × 291 px for best fit
+            </p>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-gray-400 transition">
               <input
                 type="file"
